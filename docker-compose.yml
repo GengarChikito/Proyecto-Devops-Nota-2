@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  # Nombre del servicio: 'app'
+  app:
+    # 1. Indicamos a Compose que construya la imagen
+    #    usando el Dockerfile en el directorio actual (.).
+    build: .
+    
+    # 2. Nombrar el contenedor (opcional)
+    container_name: node-microservice
+    
+    # 3. Mapeo de Puertos (HOST:CONTAINER)
+    #    Expone el puerto 80 del host al puerto 3000 del contenedor
+    #    (el puerto que usa tu server.js).
+    ports:
+      - "80:3000"
+      
+    # 4. Modo de Reinicio (si falla, intenta reiniciarlo)
+    restart: always
+    
+    # 5. Opcional: Variables de entorno
+    environment:
+      NODE_ENV: production
