@@ -19,7 +19,6 @@ jobs:
       - name: ⬇️ Checkout del Código
         uses: actions/checkout@v4
         with:
-          # Es crucial para SonarCloud tener todo el historial. Ya lo tienes en 0, ¡perfecto!
           fetch-depth: 0
 
       - name: ⚙️ Configurar Node.js 20
@@ -44,6 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          # Bloque de argumentos sin comentarios para evitar el error "Unrecognized option: #"
           args: >
             -Dsonar.branch.name=main
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
@@ -53,7 +53,7 @@ jobs:
             -Dsonar.tests=server.test.js
             -Dsonar.testExecutionReportPaths=test-report.xml
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.qualitygate.wait=true # <-- Solución para estabilizar la conexión inicial y la rama por defecto
+            -Dsonar.qualitygate.wait=true
 
   deploy:
     needs: build-and-test
