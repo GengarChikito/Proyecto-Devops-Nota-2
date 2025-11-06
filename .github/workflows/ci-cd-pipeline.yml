@@ -1,4 +1,4 @@
-name: CI/CD Microservicio Node.js (FINAL Y CORREGIDO)
+name: CI/CD Microservicio Node.js (CORRECCIÓN FINAL DE ARGUMENTOS)
 
 # Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
@@ -53,10 +53,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
-        # FIX CLAVE: Argumentos totalmente limpios sin comentarios.
         args: > 
+          # FIX CLAVE: Se eliminó -Dsonar.projectBaseDir para resolver el error de duplicación.
           -Dsonar.branch.name=main
-          -Dsonar.projectBaseDir=.
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} 
           -Dsonar.projectKey=Proyecto-Devops-Nota-2
           -Dsonar.sources=. 
