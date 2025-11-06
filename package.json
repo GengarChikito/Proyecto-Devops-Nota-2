@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    // FIX CLAVE: --forceExit y --detectOpenHandles fuerzan el cierre de la conexión del servidor
+    "test": "jest --coverage --testResultsProcessor='jest-sonar-reporter' --forceExit --detectOpenHandles" 
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "express": "^4.19.2",
-    "mime": "^4.1.0"
+    "express": "^4.19.2"
+    // Si instalaste 'mime' o 'body-parser' explicitamente, mantenlos aqui
   },
   "devDependencies": {
     "jest": "^29.7.0",
@@ -20,6 +20,13 @@
     "supertest": "^6.3.4"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage", 
+    "collectCoverageFrom": ["server.js"],
+    "coverageThreshold": {
+      "global": {
+        "lines": 80 
+      }
+    }
   }
 }
