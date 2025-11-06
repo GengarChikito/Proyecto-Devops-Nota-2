@@ -10,7 +10,7 @@ El estado del pipeline se verifica automáticamente con GitHub Actions en cada *
 
 ## ✅ Garantía de Calidad y Trazabilidad
 
-El proceso de CI/CD se basa en los siguientes pasos, cumpliendo los requisitos del proyecto:
+El proceso de  CI/CD se basa en los siguientes pasos, cumpliendo los requisitos del proyecto:
 
 | Requisito | Herramienta | Cumplimiento |
 | :--- | :--- | :--- |
@@ -26,6 +26,7 @@ Para probar el microservicio y su orquestación en tu máquina:
 
 1.  Asegúrate de tener Docker Desktop iniciado.
 2.  Ejecuta el siguiente comando en la raíz del proyecto para construir la imagen e iniciar el contenedor:
+y eso
 
 ```bash
 docker compose up -d --build
