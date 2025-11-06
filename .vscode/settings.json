@@ -1,6 +1,6 @@
 {
     "sonarlint.connectedMode.project": {
         "connectionId": "SONAR_TOKEN",
-        "projectKey": "gengarchikito_proyecto-devops-nota-2"
+        "projectKey": "GengarChikito_Proyecto-Devops-Nota-2"
     }
 }
