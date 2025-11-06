@@ -37,19 +37,18 @@ jobs:
       # El pipeline falla si las pruebas unitarias fallan
       run: npm test
 
-    # 🛡️ IE3: Escaneo de Seguridad y Análisis de Código con Snyk
-    # Requiere que el secreto SNYK_TOKEN esté configurado en GitHub
+    # 🛡️ IE3: Escaneo de Seguridad y Análisis de Código con Snyk (CLI - Método Robusto)
+    # Se utiliza la CLI de Snyk para forzar la autenticación y escaneo.
     - name: 🛡️ Escaneo de Seguridad con Snyk (IE3)
-      uses: snyk/actions/node@master
-      continue-on-error: true # Permite que el pipeline continúe aunque Snyk falle la conexión
-# ... (el resto del código de Snyk) ...
+      # Se fuerza la ejecución con 'bash' en el runner
+      run: |
+        npm install -g snyk@latest # Instala la última versión de la CLI de Snyk
+        snyk auth ${{ secrets.SNYK_TOKEN }} # Autentica con el secreto de GitHub
+        snyk test --severity-threshold=high # Ejecuta el escaneo de seguridad
       env:
+        # Se requiere el secreto para la autenticación
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
-      with:
-        command: test
-        # El pipeline falla si encuentra vulnerabilidades de severidad alta o mayor.
-        args: --severity-threshold=high
-
+      
   # ----------------------------------------
   # JOB 2: CD - Construcción y Despliegue (IE1, IE4)
   # Se ejecuta SÓLO si el job de pruebas y seguridad es exitoso
@@ -82,10 +81,8 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         
-    # IE4/IE5: Despliegue automático (EJEMPLO de entorno simulado)
-    # Este paso es un ejemplo para demostrar el despliegue automático.
-    # En un entorno real (nube, K8s) se usarían acciones específicas.
-    # Si quieres usar Docker Compose sobre SSH, descomenta y configura:
+    # IE4/IE5: Despliegue automático (Ejemplo de entorno simulado con Docker Compose)
+    # Descomentar y configurar si se usa SSH para despliegue automático.
     # - name: ☁️ Despliegue a Entorno Simulado (IE4/IE5)
     #   uses: appleboy/ssh-action@master
     #   with:
@@ -93,7 +90,7 @@ jobs:
     #     username: ${{ secrets.DEPLOY_USER }}
     #     key: ${{ secrets.SSH_PRIVATE_KEY }}
     #     script: |
-    #       # Estos comandos asumen que tienes Docker Compose instalado en el servidor remoto
+    #       # Comandos para desplegar la nueva imagen en un servidor con Docker Compose
     #       cd /ruta/de/despliegue
     #       docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
     #       docker compose up -d
