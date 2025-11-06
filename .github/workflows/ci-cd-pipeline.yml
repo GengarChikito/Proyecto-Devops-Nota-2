@@ -32,13 +32,13 @@ jobs:
       with:
         node-version: '20'
 
-    # FIX: Instalación robusta de dependencias 
+    # FIX: Instalación robusta de dependencias
     - name: 📦 Instalar dependencias de forma robusta
       run: |
         npm cache clean --force 
         npm install --force     
 
-    # FIX: Permisos de ejecución (para 'Permission denied' de Jest)
+    # FIX: Permisos de ejecución (Resuelve 'Permission denied')
     - name: 🛠️ Asignar Permisos de Ejecución a Jest
       run: chmod +x node_modules/.bin/jest 
       
@@ -53,8 +53,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
+        # FIX CLAVE: Argumentos limpios. Resuelve NullPointerException y error Unrecognized option #
         args: > 
-          # FIX CLAVE: Resuelve NullPointerException y define el directorio base del proyecto
           -Dsonar.projectBaseDir=.
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} 
           -Dsonar.projectKey=Proyecto-Devops-Nota-2
