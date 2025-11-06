@@ -1,4 +1,4 @@
-name: CI/CD Microservicio Node.js
+name: CI/CD Microservicio Node.js (SonarCloud)
 
 # Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
@@ -15,7 +15,7 @@ env:
 
 jobs:
   # ----------------------------------------
-  # JOB 1: CI - Pruebas y Seguridad (IE2, IE3)
+  # JOB 1: CI - Pruebas y Análisis (IE2, IE3)
   # ----------------------------------------
   build-and-test:
     runs-on: ubuntu-latest
@@ -23,8 +23,10 @@ jobs:
     steps:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
+      with:
+        # Fetching history is required for SonarCloud to analyze pull requests
+        fetch-depth: 0 
 
-    # IE2: Configuración de Node.js para las pruebas
     - name: ⚙️ Configurar Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -33,31 +35,37 @@ jobs:
     - name: 📦 Instalar dependencias
       run: npm install
     
-    - name: 🧪 Ejecutar Pruebas Unitarias con Jest (IE2)
-      # El pipeline falla si las pruebas unitarias fallan
+    # IE2: Ejecutar Pruebas, Cobertura y Generar Reportes (JUnit/LCOV)
+    - name: 🧪 Ejecutar Pruebas y Generar Reportes de Calidad (IE2)
+      # El script 'test' en package.json genera los archivos necesarios
       run: npm test
 
-    # 🛡️ IE3: Escaneo de Seguridad y Análisis de Código con Snyk (CLI - Método Robusto)
-    # Se utiliza la CLI de Snyk para forzar la autenticación y escaneo.
-    - name: 🛡️ Escaneo de Seguridad con Snyk (IE3)
-      # Se fuerza la ejecución con 'bash' en el runner
-      run: |
-        npm install -g snyk@latest # Instala la última versión de la CLI de Snyk
-        snyk auth ${{ secrets.SNYK_TOKEN }} # Autentica con el secreto de GitHub
-        snyk test --severity-threshold=high # Ejecuta el escaneo de seguridad
+    # 📊 IE3: Análisis de Código Estático con SonarCloud
+    # Requiere que el análisis de pruebas haya generado los reportes.
+    - name: 📊 Análisis de Código Estático con SonarCloud (IE3)
+      uses: SonarSource/sonarcloud-github-action@v2.1.1
       env:
-        # Se requiere el secreto para la autenticación
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
-      
+        # Tokens y credenciales de SonarCloud/GitHub
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token interno para PRs
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+      with:
+        organization: ${{ secrets.SONAR_ORGANIZATION }}
+        projectKey: Proyecto-Devops-Nota-2 # Debe coincidir con el ID de tu proyecto en SonarCloud
+        args: > # Argumentos para que SonarCloud lea los reportes generados por Jest
+          -Dsonar.sources=. 
+          -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
+          -Dsonar.tests=server.test.js
+          -Dsonar.testExecutionReportPaths=test-report.xml
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info # <--- Ruta del reporte de Cobertura
+          
   # ----------------------------------------
   # JOB 2: CD - Construcción y Despliegue (IE1, IE4)
-  # Se ejecuta SÓLO si el job de pruebas y seguridad es exitoso
   # ----------------------------------------
   deploy:
-    needs: build-and-test # Depende del éxito de las pruebas/seguridad
+    needs: build-and-test # Se ejecuta SÓLO si las pruebas/análisis (IE2, IE3) son exitosos
     runs-on: ubuntu-latest
     
-    # Permisos necesarios para subir la imagen al Container Registry de GitHub
+    # ... (El resto del job 'deploy' permanece igual, construyendo la imagen) ...
     permissions:
       contents: read
       packages: write
@@ -81,16 +89,5 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         
-    # IE4/IE5: Despliegue automático (Ejemplo de entorno simulado con Docker Compose)
-    # Descomentar y configurar si se usa SSH para despliegue automático.
-    # - name: ☁️ Despliegue a Entorno Simulado (IE4/IE5)
-    #   uses: appleboy/ssh-action@master
-    #   with:
-    #     host: ${{ secrets.DEPLOY_HOST }}
-    #     username: ${{ secrets.DEPLOY_USER }}
-    #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-    #     script: |
-    #       # Comandos para desplegar la nueva imagen en un servidor con Docker Compose
-    #       cd /ruta/de/despliegue
-    #       docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-    #       docker compose up -d
+    # IE4/IE5: Despliegue automático
+    # El resto del pipeline de despliegue
