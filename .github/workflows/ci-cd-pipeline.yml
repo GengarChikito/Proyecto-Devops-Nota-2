@@ -38,7 +38,7 @@ jobs:
         npm cache clean --force 
         npm install --force     
 
-    # FIX: Permisos de ejecución (Resuelve 'Permission denied')
+    # FIX: Permisos de ejecución (Resuelve 'Permission denied' de Jest)
     - name: 🛠️ Asignar Permisos de Ejecución a Jest
       run: chmod +x node_modules/.bin/jest 
       
@@ -53,8 +53,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
+        # FIX CLAVE: Argumentos totalmente limpios sin comentarios.
         args: > 
-          # FIX CLAVE: Resuelve el error 'Could not find a default branch'
           -Dsonar.branch.name=main
           -Dsonar.projectBaseDir=.
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} 
