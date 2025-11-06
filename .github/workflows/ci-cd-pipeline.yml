@@ -24,7 +24,7 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
       with:
-        # Requerido para SonarCloud en Pull Requests
+        # fetch-depth 0 es esencial para el análisis de SonarCloud en ramas
         fetch-depth: 0 
 
     - name: ⚙️ Configurar Node.js 20
@@ -32,18 +32,19 @@ jobs:
       with:
         node-version: '20'
 
-    # FIX CLAVE: Instalación robusta de dependencias para corregir 'ModNotFoundError'
+    # FIX: Instalación robusta de dependencias
     - name: 📦 Instalar dependencias de forma robusta
       run: |
-        npm cache clean --force  # Limpia el caché para evitar módulos corruptos
-        npm install --force      # Instala TODAS las dependencias de nuevo (incluido 'express')
-      
-    # FIX para error 'Permission denied' de Jest
+        npm cache clean --force 
+        npm install --force     
+
+    # FIX: Permisos de ejecución para el binario de Jest (evita 'Permission denied')
     - name: 🛠️ Asignar Permisos de Ejecución a Jest
       run: chmod +x node_modules/.bin/jest 
       
-    # IE2: Ejecutar Pruebas, Cobertura y Generar Reportes de Calidad
+    # IE2: Ejecutar Pruebas y Generar Reportes
     - name: 🧪 Ejecutar Pruebas y Generar Reportes de Calidad (IE2)
+      # Genera cobertura de código y reportes JUnit/LCOV
       run: npm test
 
     # 📊 IE3: Análisis de Código Estático con SonarCloud
@@ -54,7 +55,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
         organization: ${{ secrets.SONAR_ORGANIZATION }}
-        projectKey: Proyecto-Devops-Nota-2 # Debe coincidir con el ID de tu proyecto en SonarCloud
+        projectKey: Proyecto-Devops-Nota-2
         args: > 
           -Dsonar.sources=. 
           -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
