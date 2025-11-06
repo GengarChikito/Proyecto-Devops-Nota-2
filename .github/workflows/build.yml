@@ -1,19 +1,84 @@
-name: Build
+name: CI/CD Pipeline Microservicio Node.js
+
 on:
   push:
     branches:
+      - main
       - master
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - master
+
+env:
+  DOCKER_IMAGE_NAME: mi-microservicio-node
+  DOCKER_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
 jobs:
-  sonarqube:
-    name: SonarQube
+  build-test-scan:
+    name: Build / Test / SonarQube Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: ⬇️ Checkout del Código
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
+          fetch-depth: 0
+
+      - name: ⚙️ Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Instalar dependencias
+        run: |
+          npm cache clean --force
+          npm install --force
+
+      - name: 🛠️ Asignar permisos para Jest
+        run: chmod +x node_modules/.bin/jest
+
+      - name: 🧪 Ejecutar pruebas
+        run: npm test
+
+      - name: 📊 Análisis con SonarQube
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=Proyecto-Devops-Nota-2
+            -Dsonar.sources=.
+            -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
+            -Dsonar.tests=server.test.js
+            -Dsonar.testExecutionReportPaths=test-report.xml
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.branch.name=${{ github.ref_name }}
+
+  deploy:
+    name: Deploy Docker Image
+    needs: build-test-scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: ⬇️ Checkout del Código
+        uses: actions/checkout@v4
+
+      - name: 🔑 Login en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🛠️ Construir y etiquetar imagen Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+
+      - name: ☁️ Despliegue (placeholder)
+        run: echo "Imagen ${{ env.DOCKER_IMAGE_NAME }} publicada en ${{ env.DOCKER_REGISTRY }}"
