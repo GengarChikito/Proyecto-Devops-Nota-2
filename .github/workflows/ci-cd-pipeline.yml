@@ -1,4 +1,4 @@
-name: CI/CD Microservicio Node.js (SonarCloud Final)
+name: CI/CD Microservicio Node.js (FINAL)
 
 # Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
@@ -24,6 +24,7 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
       with:
+        # fetch-depth 0 es esencial para el análisis de SonarCloud
         fetch-depth: 0 
 
     - name: ⚙️ Configurar Node.js 20
@@ -31,31 +32,31 @@ jobs:
       with:
         node-version: '20'
 
-    # FIX: Instalación robusta de dependencias (para errores de módulo no encontrado)
+    # FIX: Instalación robusta de dependencias 
     - name: 📦 Instalar dependencias de forma robusta
       run: |
         npm cache clean --force 
         npm install --force     
 
-    # FIX: Permisos de ejecución (para 'Permission denied')
+    # FIX: Permisos de ejecución (para 'Permission denied' de Jest)
     - name: 🛠️ Asignar Permisos de Ejecución a Jest
       run: chmod +x node_modules/.bin/jest 
       
     # IE2: Ejecutar Pruebas y Generar Reportes
     - name: 🧪 Ejecutar Pruebas y Generar Reportes de Calidad (IE2)
-      # Se ejecuta con el script modificado que fuerza el cierre del servidor
       run: npm test
 
-    # 📊 IE3: Análisis de Código Estático con SonarCloud
+    # 📊 IE3: Análisis de Código Estático con SonarCloud (CORREGIDO)
     - name: 📊 Análisis de Código Estático con SonarCloud (IE3)
       uses: SonarSource/sonarcloud-github-action@v2.1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
-        organization: ${{ secrets.SONAR_ORGANIZATION }}
-        projectKey: Proyecto-Devops-Nota-2
+        # FIX CLAVE: Los parámetros organization y projectKey se MUEVEN dentro de args:
         args: > 
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} 
+          -Dsonar.projectKey=Proyecto-Devops-Nota-2
           -Dsonar.sources=. 
           -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
           -Dsonar.tests=server.test.js
