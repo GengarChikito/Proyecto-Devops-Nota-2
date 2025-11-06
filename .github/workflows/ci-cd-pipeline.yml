@@ -1,4 +1,4 @@
-name: CI/CD Microservicio Node.js (SonarCloud)
+name: CI/CD Microservicio Node.js (SonarCloud Final)
 
 # Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
@@ -24,7 +24,7 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
       with:
-        # Fetching history is required for SonarCloud to analyze pull requests
+        # Requerido para SonarCloud en Pull Requests
         fetch-depth: 0 
 
     - name: ⚙️ Configurar Node.js 20
@@ -34,19 +34,22 @@ jobs:
 
     - name: 📦 Instalar dependencias
       run: npm install
-    
+      
+    # FIX CLAVE: Solución al error 'Permission denied' de Jest
+    - name: 🛠️ Asignar Permisos de Ejecución a Jest
+      run: chmod +x node_modules/.bin/jest 
+      
     # IE2: Ejecutar Pruebas, Cobertura y Generar Reportes (JUnit/LCOV)
     - name: 🧪 Ejecutar Pruebas y Generar Reportes de Calidad (IE2)
-      # El script 'test' en package.json genera los archivos necesarios
+      # Este paso usa el script 'test' del package.json para generar los reportes
       run: npm test
 
     # 📊 IE3: Análisis de Código Estático con SonarCloud
-    # Requiere que el análisis de pruebas haya generado los reportes.
     - name: 📊 Análisis de Código Estático con SonarCloud (IE3)
       uses: SonarSource/sonarcloud-github-action@v2.1.1
       env:
         # Tokens y credenciales de SonarCloud/GitHub
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token interno para PRs
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
         organization: ${{ secrets.SONAR_ORGANIZATION }}
@@ -56,16 +59,16 @@ jobs:
           -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
           -Dsonar.tests=server.test.js
           -Dsonar.testExecutionReportPaths=test-report.xml
-          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info # <--- Ruta del reporte de Cobertura
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
           
   # ----------------------------------------
-  # JOB 2: CD - Construcción y Despliegue (IE1, IE4)
+  # JOB 2: CD - Construcción y Despliegue (IE1, IE4, IE5)
   # ----------------------------------------
   deploy:
     needs: build-and-test # Se ejecuta SÓLO si las pruebas/análisis (IE2, IE3) son exitosos
     runs-on: ubuntu-latest
     
-    # ... (El resto del job 'deploy' permanece igual, construyendo la imagen) ...
+    # Permisos necesarios para subir la imagen al Container Registry
     permissions:
       contents: read
       packages: write
@@ -89,5 +92,7 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         
-    # IE4/IE5: Despliegue automático
-    # El resto del pipeline de despliegue
+    # IE4/IE5: Despliegue automático (Placeholder: Reemplazar con tu lógica de despliegue)
+    # Este paso indica la intención del despliegue (IE4) y orquestación (IE5)
+    - name: ☁️ Despliegue (Ejemplo Placeholder)
+      run: echo "El microservicio ha sido construido y la imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
