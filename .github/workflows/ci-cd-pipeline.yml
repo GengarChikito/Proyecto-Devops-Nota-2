@@ -1,6 +1,6 @@
 name: CI/CD Microservicio Node.js
 
-# Definimos cuándo se ejecuta el workflow: al hacer push a la rama 'main'
+# Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
   push:
     branches:
@@ -24,8 +24,8 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
 
-    # IE2: Ejecución de pruebas unitarias (Usaremos Jest, estándar de Node)
-    - name: ⚙️ Configurar Node.js
+    # IE2: Configuración de Node.js para las pruebas
+    - name: ⚙️ Configurar Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -33,30 +33,30 @@ jobs:
     - name: 📦 Instalar dependencias
       run: npm install
     
-    - name: 🧪 Ejecutar Pruebas Unitarias (IE2)
-      # Nota: Necesitas haber definido scripts de prueba en tu package.json.
-      # Por ejemplo: "test": "jest"
+    - name: 🧪 Ejecutar Pruebas Unitarias con Jest (IE2)
+      # El pipeline falla si las pruebas unitarias fallan
       run: npm test
 
-    # IE3: Escaneo de vulnerabilidades con Snyk (Ejemplo de DevSecOps)
-    # Debes configurar un secreto SNYK_TOKEN en tu repo de GitHub
-    # - name: 🛡️ Escaneo de Seguridad de Dependencias (IE3)
-    #   uses: snyk/actions/node@master
-    #   env:
-    #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-    #   with:
-    #     command: test
-    #     args: --severity-threshold=high
+    # 🛡️ IE3: Escaneo de Seguridad y Análisis de Código con Snyk
+    # Requiere que el secreto SNYK_TOKEN esté configurado en GitHub
+    - name: 🛡️ Escaneo de Seguridad con Snyk (IE3)
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
+      with:
+        command: test
+        # El pipeline falla si encuentra vulnerabilidades de severidad alta o mayor.
+        args: --severity-threshold=high
 
   # ----------------------------------------
   # JOB 2: CD - Construcción y Despliegue (IE1, IE4)
-  # Se ejecuta SÓLO si el job de pruebas es exitoso
+  # Se ejecuta SÓLO si el job de pruebas y seguridad es exitoso
   # ----------------------------------------
   deploy:
-    needs: build-and-test 
+    needs: build-and-test # Depende del éxito de las pruebas/seguridad
     runs-on: ubuntu-latest
     
-    # Permisos para interactuar con GitHub Container Registry (GHCR)
+    # Permisos necesarios para subir la imagen al Container Registry de GitHub
     permissions:
       contents: read
       packages: write
@@ -80,15 +80,18 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         
-    # IE4: Despliegue automático (EJEMPLO con Docker Compose sobre SSH)
-    # Este paso es un ejemplo. En un ambiente real se usarían acciones específicas de AWS, Azure o GCP.
-    # - name: ☁️ Despliegue a Entorno Simulado (IE4)
+    # IE4/IE5: Despliegue automático (EJEMPLO de entorno simulado)
+    # Este paso es un ejemplo para demostrar el despliegue automático.
+    # En un entorno real (nube, K8s) se usarían acciones específicas.
+    # Si quieres usar Docker Compose sobre SSH, descomenta y configura:
+    # - name: ☁️ Despliegue a Entorno Simulado (IE4/IE5)
     #   uses: appleboy/ssh-action@master
     #   with:
     #     host: ${{ secrets.DEPLOY_HOST }}
     #     username: ${{ secrets.DEPLOY_USER }}
     #     key: ${{ secrets.SSH_PRIVATE_KEY }}
     #     script: |
+    #       # Estos comandos asumen que tienes Docker Compose instalado en el servidor remoto
     #       cd /ruta/de/despliegue
     #       docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
     #       docker compose up -d
