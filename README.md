@@ -18,7 +18,7 @@ El proceso de  CI/CD se basa en los siguientes pasos, cumpliendo los requisitos 
 | **Pruebas Unitarias (IE2)** | **Jest / Supertest** | Se ejecutan automáticamente en el pipeline. Si fallan, el despliegue se bloqueaaaaaaa. |
 | **Seguridad (IE3)** | **Dependabot / Snyk** | Se escanean las dependencias en busca de vulnerabilidades antes de cada *build* de imagen. |
 | **Despliegue (IE4)** | **GitHub Actions** | El *pipeline* solo procede al despliegue si todas las pruebas y escaneos de seguridad son exitosos. |
-| **Orquestación (IE5)** | **Docker Compose** | Estrategia simple implementada para simular el despliegue en un entorno de pruebas. |
+| **Orquestaciiión (IE5)** | **Docker Compose** | Estrategia simple implementada para simular el despliegue en un entorno de pruebas. |
 
 ## 🛠️ Ejecución Local
 
