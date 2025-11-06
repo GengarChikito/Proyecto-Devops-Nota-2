@@ -1,4 +1,4 @@
-name: CI/CD Microservicio Node.js (FINAL)
+name: CI/CD Microservicio Node.js (FINAL Y CORREGIDO)
 
 # Se ejecuta con cada push o Pull Request a la rama 'main'
 on:
@@ -24,7 +24,7 @@ jobs:
     - name: ⬇️ Checkout del Código
       uses: actions/checkout@v4
       with:
-        # fetch-depth 0 es esencial para el análisis de SonarCloud
+        # Requerido para el análisis de SonarCloud
         fetch-depth: 0 
 
     - name: ⚙️ Configurar Node.js 20
@@ -53,8 +53,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
-        # FIX CLAVE: Los parámetros organization y projectKey se MUEVEN dentro de args:
         args: > 
+          # FIX CLAVE: Resuelve NullPointerException y define el directorio base del proyecto
+          -Dsonar.projectBaseDir=.
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} 
           -Dsonar.projectKey=Proyecto-Devops-Nota-2
           -Dsonar.sources=. 
