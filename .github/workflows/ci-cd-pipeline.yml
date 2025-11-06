@@ -19,6 +19,7 @@ jobs:
       - name: ⬇️ Checkout del Código
         uses: actions/checkout@v4
         with:
+          # Es crucial para SonarCloud tener todo el historial. Ya lo tienes en 0, ¡perfecto!
           fetch-depth: 0
 
       - name: ⚙️ Configurar Node.js 20
@@ -52,6 +53,7 @@ jobs:
             -Dsonar.tests=server.test.js
             -Dsonar.testExecutionReportPaths=test-report.xml
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.qualitygate.wait=true # <-- Solución para estabilizar la conexión inicial y la rama por defecto
 
   deploy:
     needs: build-and-test
@@ -79,4 +81,3 @@ jobs:
 
       - name: ☁️ Despliegue (placeholder)
         run: echo "La imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
-
