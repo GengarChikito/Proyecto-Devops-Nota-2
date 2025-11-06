@@ -32,29 +32,30 @@ jobs:
       with:
         node-version: '20'
 
-    - name: 📦 Instalar dependencias
-      run: npm install
+    # FIX CLAVE: Instalación robusta de dependencias para corregir 'ModNotFoundError'
+    - name: 📦 Instalar dependencias de forma robusta
+      run: |
+        npm cache clean --force  # Limpia el caché para evitar módulos corruptos
+        npm install --force      # Instala TODAS las dependencias de nuevo (incluido 'express')
       
-    # FIX CLAVE: Solución al error 'Permission denied' de Jest
+    # FIX para error 'Permission denied' de Jest
     - name: 🛠️ Asignar Permisos de Ejecución a Jest
       run: chmod +x node_modules/.bin/jest 
       
-    # IE2: Ejecutar Pruebas, Cobertura y Generar Reportes (JUnit/LCOV)
+    # IE2: Ejecutar Pruebas, Cobertura y Generar Reportes de Calidad
     - name: 🧪 Ejecutar Pruebas y Generar Reportes de Calidad (IE2)
-      # Este paso usa el script 'test' del package.json para generar los reportes
       run: npm test
 
     # 📊 IE3: Análisis de Código Estático con SonarCloud
     - name: 📊 Análisis de Código Estático con SonarCloud (IE3)
       uses: SonarSource/sonarcloud-github-action@v2.1.1
       env:
-        # Tokens y credenciales de SonarCloud/GitHub
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
       with:
         organization: ${{ secrets.SONAR_ORGANIZATION }}
         projectKey: Proyecto-Devops-Nota-2 # Debe coincidir con el ID de tu proyecto en SonarCloud
-        args: > # Argumentos para que SonarCloud lea los reportes generados por Jest
+        args: > 
           -Dsonar.sources=. 
           -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
           -Dsonar.tests=server.test.js
@@ -65,10 +66,9 @@ jobs:
   # JOB 2: CD - Construcción y Despliegue (IE1, IE4, IE5)
   # ----------------------------------------
   deploy:
-    needs: build-and-test # Se ejecuta SÓLO si las pruebas/análisis (IE2, IE3) son exitosos
+    needs: build-and-test
     runs-on: ubuntu-latest
     
-    # Permisos necesarios para subir la imagen al Container Registry
     permissions:
       contents: read
       packages: write
@@ -92,7 +92,6 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
         
-    # IE4/IE5: Despliegue automático (Placeholder: Reemplazar con tu lógica de despliegue)
-    # Este paso indica la intención del despliegue (IE4) y orquestación (IE5)
+    # IE4/IE5: Despliegue automático
     - name: ☁️ Despliegue (Ejemplo Placeholder)
       run: echo "El microservicio ha sido construido y la imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
