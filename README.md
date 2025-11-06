@@ -25,7 +25,7 @@ El proceso de  CI/CD se basa en los siguientes pasos, cumpliendo los requisitos 
 Para probar el microservicio y su orquestación en tu máquina:
 
 1.  Asegúrate de tener Docker Desktop iniciado.
-2.  Ejecuta el siguiente comando en la raíz del proyecto para construir la imagen e iniciar el contenedor zzme voy a volver loco si no corre synk  meti sonarqube odio synkz.....:
+2.  Ejecuta el siguiente comando en la raíz del proyecto para construir la imagen e iniciar el contenedor zzsssme voy a volver loco si no corre synk  meti sonarqube odio synkz.....:
 y eso
 
 ```bash
