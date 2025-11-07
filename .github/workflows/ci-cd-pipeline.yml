@@ -10,8 +10,8 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: mi-microservicio-node
-  # 🔑 Mantenemos toLower() aquí por seguridad, ya que es el componente clave de la URL del registro.
-  DOCKER_REGISTRY: ghcr.io/${{ toLower(github.repository_owner) }} 
+  # ✅ CORRECCIÓN FINAL: Usando la función correcta de GitHub Actions
+  DOCKER_REGISTRY: ghcr.io/${{ toLowerCase(github.repository_owner) }} 
 
 jobs:
   build-and-test:
@@ -72,8 +72,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
-          # Usamos la variable directa, ya que confirmaste que es minúsculas.
-          username: ${{ github.repository_owner }} 
+          # El username se usa aquí con el valor original (gengarchikito)
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🛠️ Construir y etiquetar imagen Docker
