@@ -44,7 +44,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -X  # <-- ¡MODO DEBUG ACTIVADO! Esto imprimirá el log completo de la comunicación con la API.
+            -X  
             -Dsonar.branch.name=main
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=Proyecto-Devops-Nota-2
