@@ -10,8 +10,9 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: mi-microservicio-node
-  # ✅ CORRECCIÓN FINAL: Usando la función correcta 'lower()'
-  DOCKER_REGISTRY: ghcr.io/${{ lower(github.repository_owner) }} 
+  # ✅ CORRECCIÓN FINAL: Usar el nombre de usuario de Docker DOCKER_USER
+  DOCKER_USER: gengarxikito # <-- ¡Tu nombre de usuario de Docker aquí!
+  DOCKER_REGISTRY: ghcr.io
 
 jobs:
   build-and-test:
@@ -72,6 +73,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
+          # Usamos el usuario de GitHub/GHCR para el login
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -80,7 +82,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          # Construimos el tag usando la nueva variable DOCKER_USER
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
       - name: ☁️ Despliegue (placeholder)
         run: echo "La imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
