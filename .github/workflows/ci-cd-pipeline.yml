@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+# 📢 COMENTARIO AÑADIDO: Este pipeline utiliza Snyk y autenticación con PAT para GHCR
+# Este comentario es solo para referencia del desarrollador y no afecta la ejecución del pipeline.
+
 env:
   DOCKER_IMAGE_NAME: mi-microservicio-node
   # Nombre de usuario en minúsculas para el registro Docker/GHCR
@@ -69,14 +72,11 @@ jobs:
       - name: ⬇️ Checkout del Código
         uses: actions/checkout@v4
 
-      # 🔑 CORRECCIÓN FINAL: Usar el PAT (GHCR_PAT) con permiso write:packages
       - name: 🔑 Login en GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
-          # El usuario que necesita los permisos
           username: ${{ env.DOCKER_USER }}
-          # El token PAT con permiso write:packages (necesario para el push)
           password: ${{ secrets.GHCR_PAT }} 
 
       - name: 🛠️ Construir y etiquetar imagen Docker
@@ -84,7 +84,6 @@ jobs:
         with:
           context: .
           push: true
-          # Construimos el tag con las variables en minúsculas
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
 
       - name: ☁️ Despliegue (placeholder)
