@@ -15,10 +15,9 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    # 🔑 CORRECCIÓN CLAVE: Permisos para subir resultados de seguridad (SARIF)
     permissions:
       contents: read
-      security-events: write # Permiso crucial para la acción upload-sarif
+      security-events: write 
       packages: write
       
     steps:
@@ -51,14 +50,11 @@ jobs:
         with:
           args: --all-projects --sarif --severity-threshold=high
           
-      # 📝 CORRECCIÓN: Crea un archivo SARIF vacío si Snyk no encuentra vulnerabilidades
-      # Esto evita el error "Path does not exist: snyk.sarif" si no hay vulnerabilidades.
-      - name: 📝 Crear SARIF vacío si no existe
-        run: touch snyk.sarif
-        if: ${{ success() || failure() }}
+      # 🚨 ELIMINAMOS EL PASO 'touch snyk.sarif' 🚨
           
       - name: ⬆️ Subir resultados de Snyk (SAST/SCA) a GitHub Security
-        if: always()
+        # 🔑 CORRECCIÓN: Subimos solo si la acción anterior (Snyk) fue exitosa.
+        if: ${{ success() }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
