@@ -8,13 +8,10 @@ on:
     branches:
       - main
 
-# 📢 COMENTARIO AÑADIDO: Este pipeline utiliza Snyk y autenticación con PAT para GHCR
-# Este comentario es solo para referencia del desarrollador y no afecta la ejecución del pipeline.
-
 env:
   DOCKER_IMAGE_NAME: mi-microservicio-node
-  # Nombre de usuario en minúsculas para el registro Docker/GHCR
-  DOCKER_USER: gengarxikito 
+  # ✅ CORREGIDO: Usar tu nombre exacto de GitHub (case-sensitive)
+  DOCKER_USER: GengarChikito
   DOCKER_REGISTRY: ghcr.io
 
 jobs:
@@ -68,6 +65,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      
     steps:
       - name: ⬇️ Checkout del Código
         uses: actions/checkout@v4
@@ -76,15 +74,19 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
+          # ✅ CORREGIDO: Usar tu usuario de GitHub
           username: ${{ env.DOCKER_USER }}
-          password: ${{ secrets.GHCR_PAT }} 
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🛠️ Construir y etiquetar imagen Docker
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          # ✅ CORREGIDO: Estructura correcta para GHCR
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
       - name: ☁️ Despliegue (placeholder)
         run: echo "La imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
