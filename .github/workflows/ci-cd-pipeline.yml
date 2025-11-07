@@ -78,6 +78,6 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-
+           //ayuda... x dios corre
       - name: ☁️ Despliegue (placeholder)
         run: echo "La imagen ${{ env.DOCKER_IMAGE_NAME }} ha sido publicada en ${{ env.DOCKER_REGISTRY }}"
