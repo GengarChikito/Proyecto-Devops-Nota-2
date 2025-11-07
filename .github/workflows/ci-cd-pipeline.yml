@@ -10,8 +10,8 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: mi-microservicio-node
-  # ✅ CORREGIDO: Usar tu nombre exacto de GitHub (case-sensitive)
-  DOCKER_USER: GengarChikito
+  # ✅ CORREGIDO: Todo en minúsculas
+  DOCKER_USER: gengarchikito
   DOCKER_REGISTRY: ghcr.io
 
 jobs:
@@ -74,7 +74,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
-          # ✅ CORREGIDO: Usar tu usuario de GitHub
+          # ✅ CORREGIDO: Todo en minúsculas
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -83,7 +83,7 @@ jobs:
         with:
           context: .
           push: true
-          # ✅ CORREGIDO: Estructura correcta para GHCR
+          # ✅ CORREGIDO: Todo en minúsculas
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
