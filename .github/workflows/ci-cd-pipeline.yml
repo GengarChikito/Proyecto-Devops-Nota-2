@@ -15,6 +15,7 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    # Permisos necesarios para escribir en la pestaña de Seguridad de GitHub
     permissions:
       contents: read
       security-events: write 
@@ -50,15 +51,16 @@ jobs:
         with:
           args: --all-projects --sarif --severity-threshold=high
           
-      # 🚨 ELIMINAMOS EL PASO 'touch snyk.sarif' 🚨
-          
       - name: ⬆️ Subir resultados de Snyk (SAST/SCA) a GitHub Security
-        # 🔑 CORRECCIÓN: Subimos solo si la acción anterior (Snyk) fue exitosa.
-        if: ${{ success() }}
+        # Usamos 'if: always()' para intentar subir, incluso si Snyk falló por vulnerabilidades encontradas.
+        if: always() 
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
-          
+        # 🔑 CORRECCIÓN FINAL: Esto permite al pipeline continuar (dar verde)
+        # incluso si 'snyk.sarif' no existe (porque no hubo vulnerabilidades).
+        continue-on-error: true
+
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
