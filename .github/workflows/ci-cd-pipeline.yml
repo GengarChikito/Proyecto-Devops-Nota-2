@@ -41,12 +41,10 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # El SONAR_TOKEN se pasa AHORA directamente por args para evitar fallos de lectura
-          # Eliminamos SONAR_TOKEN de la sección env:
+          # 🔑 Corrección: El token debe ir en env: para que la acción funcione.
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
         with:
           args: >
-            # 🔑 Corrección: Pasamos el token directamente por argumento
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} 
             -Dsonar.branch.name=main
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=Proyecto-Devops-Nota-2
