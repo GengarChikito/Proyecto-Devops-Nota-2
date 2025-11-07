@@ -43,8 +43,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Bloque de argumentos sin comentarios para evitar el error "Unrecognized option: #"
           args: >
+            -X  # <-- ¡MODO DEBUG ACTIVADO! Esto imprimirá el log completo de la comunicación con la API.
             -Dsonar.branch.name=main
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=Proyecto-Devops-Nota-2
