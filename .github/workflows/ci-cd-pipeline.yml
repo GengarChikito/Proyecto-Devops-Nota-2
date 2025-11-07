@@ -37,18 +37,15 @@ jobs:
       - name: 🧪 Ejecutar pruebas y generar reportes de calidad
         run: npm test
 
-      # 🚨 PASO DE SONARCLOUD ELIMINADO Y REEMPLAZADO POR SNYK 🚨
       - name: 🛡️ Análisis de Seguridad de Snyk
         uses: snyk/actions/node@master
         env:
-          # Token de Snyk para autenticación
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
         with:
-          # Analiza las dependencias (package.json/package-lock.json) y el código (SAST)
           args: --all-projects --sarif --severity-threshold=high
           
       - name: ⬆️ Subir resultados de Snyk (SAST/SCA) a GitHub Security
-        if: always() # Ejecutar siempre, incluso si el paso de Snyk falla
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
