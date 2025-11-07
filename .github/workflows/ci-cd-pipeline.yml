@@ -37,25 +37,22 @@ jobs:
       - name: 🧪 Ejecutar pruebas y generar reportes de calidad
         run: npm test
 
-      - name: 📊 Análisis de código estático con SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2.1.1
+      # 🚨 PASO DE SONARCLOUD ELIMINADO Y REEMPLAZADO POR SNYK 🚨
+      - name: 🛡️ Análisis de Seguridad de Snyk
+        uses: snyk/actions/node@master
         env:
-          # TOKEN DE GITHUB para la comunicación del Quality Gate
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # TOKEN DE SONARCLOUD para la autenticación y subida de análisis
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+          # Token de Snyk para autenticación
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
         with:
-          args: >
-            -Dsonar.branch.name=main
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=Proyecto-Devops-Nota-2
-            -Dsonar.sources=.
-            -Dsonar.exclusions=node_modules/**,coverage/**,**/test/**
-            -Dsonar.tests=server.test.js
-            -Dsonar.testExecutionReportPaths=test-report.xml
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.qualitygate.wait=true 
-
+          # Analiza las dependencias (package.json/package-lock.json) y el código (SAST)
+          args: --all-projects --sarif --severity-threshold=high
+          
+      - name: ⬆️ Subir resultados de Snyk (SAST/SCA) a GitHub Security
+        if: always() # Ejecutar siempre, incluso si el paso de Snyk falla
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
+          
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
