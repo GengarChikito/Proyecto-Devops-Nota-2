@@ -41,10 +41,9 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # ¡Asegúrate que este secreto tenga el token nuevo!
         with:
           args: >
-            -X  
             -Dsonar.branch.name=main
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=Proyecto-Devops-Nota-2
@@ -53,7 +52,7 @@ jobs:
             -Dsonar.tests=server.test.js
             -Dsonar.testExecutionReportPaths=test-report.xml
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.wait=true # Mantenemos esta opción para asegurar la sincronización
 
   deploy:
     needs: build-and-test
