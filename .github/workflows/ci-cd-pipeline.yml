@@ -15,6 +15,12 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    # 🔑 CORRECCIÓN CLAVE: Permisos para subir resultados de seguridad (SARIF)
+    permissions:
+      contents: read
+      security-events: write # Permiso crucial para la acción upload-sarif
+      packages: write
+      
     steps:
       - name: ⬇️ Checkout del Código
         uses: actions/checkout@v4
@@ -37,12 +43,19 @@ jobs:
       - name: 🧪 Ejecutar pruebas y generar reportes de calidad
         run: npm test
 
+      # 🛡️ Análisis de Seguridad de Snyk
       - name: 🛡️ Análisis de Seguridad de Snyk
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
         with:
           args: --all-projects --sarif --severity-threshold=high
+          
+      # 📝 CORRECCIÓN: Crea un archivo SARIF vacío si Snyk no encuentra vulnerabilidades
+      # Esto evita el error "Path does not exist: snyk.sarif" si no hay vulnerabilidades.
+      - name: 📝 Crear SARIF vacío si no existe
+        run: touch snyk.sarif
+        if: ${{ success() || failure() }}
           
       - name: ⬆️ Subir resultados de Snyk (SAST/SCA) a GitHub Security
         if: always()
